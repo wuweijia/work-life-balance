@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <button id="test">click</button>
+</body>
+</html>
+
+<script>
+  // 箭头函数 在定义的时候this就已经被绑定了
+  function Button() {
+    this.clicked = false,
+    this.click = () => {
+      console.log(this); // button 实例
+      this.clicked = true
+      console.log(button.clicked);
+    }
+  }
+
+  function Button2() {
+      this.clicked = false,
+        this.click = function(){
+          console.log(this); // 被点击的dom元素
+          this.clicked = true
+          console.log(button2.clicked);
+        }
+    }
+
+  const button = new Button()
+  const button2 = new Button2()
+  var elem = document.getElementById('test')
+
+  elem.addEventListener('click', button.click)
+  elem.addEventListener('click', button2.click)
+</script>

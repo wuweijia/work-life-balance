@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>代理模式-图片懒加载</title>
+</head>
+
+<body>
+  <script>
+    var myImage = (function () {
+      var imgNode = document.createElement('img'); document.body.appendChild(imgNode);
+      return {
+        setSrc: function (src) {
+          imgNode.src = src;
+        }
+      }
+    })();
+    var proxyImage = (function () {
+      var img = new Image;
+      img.onload = function () {
+        myImage.setSrc(this.src);
+      }
+      return {
+        setSrc: function (src) {
+          myImage.setSrc('./img/icon.png');
+          img.src = src;
+        }
+      }
+    })();
+    proxyImage.setSrc('https://static.23mofang.com/image/2019/07/24/Zd16c22acc2e5/1563949843181_pc_banner_bg.jpg')
+
+  </script>
+</body>
+
+</html>
