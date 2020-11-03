@@ -50,6 +50,11 @@
     <section>
       <anchored-heading :level='1'>123</anchored-heading>
     </section>
+
+    <h3>watch 多个handler</h3>
+    <section>
+      <div @click="changeWatchData"> {{ watchData }} </div>
+    </section>
   </div>
 </template>
 
@@ -126,7 +131,19 @@ export default {
           ],
         },
       ],
+      watchData: 'watchData'
     }
+  },
+  watch: {
+    watchData: [{
+      handler: function() {
+        console.log('1');
+      }
+    },{
+      handler: function() {
+        console.log('2');
+      }
+    }]
   },
   methods: {
     handle(e) {
@@ -140,6 +157,9 @@ export default {
     },
     click() {
       console.log('这是一个事件回调');
+    },
+    changeWatchData() {
+      this.watchData = 'watchData2'
     }
   },
 }
