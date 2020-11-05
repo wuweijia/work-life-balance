@@ -45,8 +45,8 @@ export default {
       return this.form.rules ? this.form.rules[this.prop] : []
     },
     onFieldBlur() {
-      // const rules = this.getRules();
-      // console.log(rules, e);
+      const rules = this.getRules();
+      console.log(rules, e);
     },
     onFieldChange(val) {
       const rules = this.getRules();

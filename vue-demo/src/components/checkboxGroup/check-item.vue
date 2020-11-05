@@ -39,11 +39,9 @@ export default {
     change(event) {
       const checked = event.target.checked;
       this.currentValue = checked ? this.value : '';
-      console.log(this.model);
       this.$emit('input', checked);
       this.$emit('on-change', checked);
-
-      // this.dispatch('iGroupCheckBox', 'checkBox-on-change', this.currentValue)
+      this.dispatch('iGroupCheckBox', 'checkBox-on-change', this.currentValue)
     },
   },
   mounted() {

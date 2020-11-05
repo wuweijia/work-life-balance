@@ -5,7 +5,12 @@ import Index from './pages/index'
 import ProvideInject from './pages/provide-inject'
 import form from './pages/form'
 import updata from './pages/updata'
+import computedandwatch from './pages/computedandwatch'
 import App from './App.vue'
+import button from './pages/click.vue'
+import communication from './pages/组件通信.vue'
+import checkbox from './pages/checkbox.vue'
+
 import Alert from './components/alert/alert'
 import './components/createElement/index';
 
@@ -13,32 +18,23 @@ Vue.use(Vuex)
 Vue.use(VueRouter)
 Vue.config.productionTip = false
 Vue.prototype.$Alert = Alert
-// router
+
 const routes = [
   { path: '/', component: Index },
   { path: '/provide-inject', component: ProvideInject },
   { path: '/form', component: form },
   { path: '/auto-updata', component: updata },
+  { path: '/computed-watch', component: computedandwatch },
+  { path: '/click', component: button },
+  { path: '/provide', component: communication },
+  { path: '/checkbox', component: checkbox },
 ]
 
-// 3. 创建 router 实例，然后传 `routes` 配置
-// 你还可以传别的配置参数, 不过先这么简单着吧。
 const router = new VueRouter({
-  routes // (缩写) 相当于 routes: routes
+  routes
 })
 
 new Vue({
   router,
-  data: {
-    foo: 1
-  },
-  computed: {
-    bar: function () {
-      return this.foo + 1
-    }
-  },
-  methods: {
-    baz: function () { /* ... */ }
-  },
   render: h => h(App),
 }).$mount('#app')

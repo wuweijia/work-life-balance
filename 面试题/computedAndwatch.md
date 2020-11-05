@@ -150,21 +150,22 @@ export function defineComputed (
 // import Dep from '../observer/dep'
 // watcher 在 scr/core/observer/watcher
 // 基本到这里就差不多结束了 他返回一个 函数 computedGetter 它就是计算属性对应的 getter。
-//  watcher.evaluate = () => {
-//   this.value = this.get()
-//   this.dirty = false
-// }
+ watcher.evaluate = () => {
+  this.value = this.get()
+  this.dirty = false // 这里设置了 false
+}
 function createComputedGetter (key) {
   return function computedGetter () {
     const watcher = this._computedWatchers && this._computedWatchers[key]
     if (watcher) {
       if (watcher.dirty) {
-        watcher.evaluate()
+        watcher.evaluate() //
+        // 这里就遗留了一个问题  那什么时候 把 dirty 设置为 true 重新求值呢 ？
       }
       if (Dep.target) {
         watcher.depend()
       }
-      return watcher.value
+      return watcher.value // dirty 为 false 进来 return val  "缓存"
     }
   }
 }
@@ -178,7 +179,8 @@ function createComputedGetter (key) {
 
 ##### watch
 
-`{ [key: string]: string | Function | Object | Array } ` 可以是数组，所以有一个遍历的过程
+侦听属性的初始化也是发生在 Vue 的实例初始化阶段的 initState 函数中，在 computed 初始化之后。
+API： `{ [key: string]: string | Function | Object | Array } ` 可以是数组，所以有一个遍历的过程
 ```js
 function initWatch (vm: Component, watch: Object) {
   for (const key in watch) {
@@ -193,6 +195,7 @@ function initWatch (vm: Component, watch: Object) {
   }
 }
 ```
+
 
 ###### createWatcher
 
@@ -212,4 +215,209 @@ function createWatcher (
   }
   return vm.$watch(expOrFn, handler, options)
 }
+
+// watch /src/core/instance/state.js
+Vue.prototype.$watch = function (
+  expOrFn: string | Function,
+  cb: any,
+  options?: Object
+): Function {
+  const vm: Component = this
+  if (isPlainObject(cb)) {
+    return createWatcher(vm, expOrFn, cb, options)
+  }
+  options = options || {}
+  options.user = true // user watch
+  const watcher = new Watcher(vm, expOrFn, cb, options)
+  if (options.immediate) { // 立即执行配置
+    try {
+      cb.call(vm, watcher.value)
+    } catch (error) {
+      handleError(error, vm, `callback for immediate watcher "${watcher.expression}"`)
+    }
+  }
+  return function unwatchFn () {
+    watcher.teardown()
+  }
+}
+
 ```
+
+侦听属性 `watch` 最终会调用 `$watch` 方法 这里需要注意一点 `options.user = true`
+通过源码可知 `watch` 有四种属性  `deep user lazy sync`
+```js
+if (options) {
+  this.deep = !!options.deep
+  this.user = !!options.user
+  this.lazy = !!options.lazy
+  this.sync = !!options.sync
+  this.before = options.before
+} else {
+  this.deep = this.user = this.lazy = this.sync = false
+}
+```
+说过了 `computed watcher` 我们看 `deep watcher`
+
+```js
+get () {
+  pushTarget(this)
+  let value
+  const vm = this.vm
+  try {
+    value = this.getter.call(vm, vm)
+  } catch (e) {
+    if (this.user) {
+      handleError(e, vm, `getter for watcher "${this.expression}"`)
+    } else {
+      throw e
+    }
+  } finally {
+    // "touch" every property so they are all tracked as
+    // dependencies for deep watching
+    if (this.deep) {
+      traverse(value)
+    }
+    popTarget()
+    this.cleanupDeps()
+  }
+  return value
+}
+```
+
+> /src/core/observer/traverse.js
+
+traverse 函数的逻辑也很简单，它实际上就是对一个对象做深层递归遍历
+因为遍历过程中就是对一个子对象的访问，会触发它们的 `getter` 过程
+这样就可以进行一波依赖收集，订阅它们的 `watcher`
+这里面明显会有一定的性能开销，所以一定要根据应用场景权衡是否要开启 `deep`
+
+```js
+export function traverse (val: any) {
+  _traverse(val, seenObjects)
+  seenObjects.clear()
+}
+
+function _traverse (val: any, seen: SimpleSet) {
+  let i, keys
+  const isA = Array.isArray(val)
+  if ((!isA && !isObject(val)) || Object.isFrozen(val) || val instanceof VNode) {
+    return
+  }
+  if (val.__ob__) {
+    const depId = val.__ob__.dep.id
+    if (seen.has(depId)) {
+      return
+    }
+    seen.add(depId)
+  }
+  if (isA) {
+    i = val.length
+    while (i--) _traverse(val[i], seen)
+  } else {
+    keys = Object.keys(val)
+    i = keys.length
+    while (i--) _traverse(val[keys[i]], seen)
+  }
+}
+
+```
+
+user watcher
+
+通过 `vm.$watch` 创建的 `watcher` 是一个 `user watcher`，它的功能很简单，在对 watcher 求值以会处理一下异常情况
+
+```js
+get() {
+  if (this.user) {
+    handleError(e, vm, `getter for watcher "${this.expression}"`)
+  } else {
+    throw e
+  }
+},
+```
+
+最后是 `sync watcher` 没啥说的
+
+
+通过对面源码的分析我们对计算属性和侦听属性的实现有了深入的了解
+计算属性本质上是 `computed watcher`
+而侦听属性本质上是 `user watcher`。
+
+就应用场景而言，计算属性适合用在模板渲染中，某个值是依赖了其它的响应式对象甚至是计算属性计算而来；而侦听属性适用于观测某个值的变化去完成一段复杂的业务逻辑。
+
+#### 最后的最后
+
+大家在面试的时候经常会说，computed 有缓存 watch 没有缓存
+那你有没有思考过 computed 是怎么实现缓存的？
+
+也就是我在 `createComputedGetter` 函数写了注释的地方，我们一起回顾一下
+
+```js
+function createComputedGetter (key) {
+  return function computedGetter () {
+    const watcher = this._computedWatchers && this._computedWatchers[key]
+    if (watcher) {
+      if (watcher.dirty) {
+        watcher.evaluate() //
+        // 这里就遗留了一个问题  那什么时候 把 dirty 设置为 true 重新求值呢 ？
+      }
+      if (Dep.target) {
+        watcher.depend()
+      }
+      return watcher.value // dirty 为 false 进来 return val  "缓存"
+    }
+  }
+}
+
+watcher.evaluate = () => {
+  this.value = this.get()
+  this.dirty = false // 这里设置了 false
+}
+
+```
+这里面当他求值了之后，把 dirty 设置了 false 这说明目前的情况我无论执行多少次
+都不会进 `watcher.evaluate()` 求值这个方法，而是直接返回 `watcher.value`
+
+那么什么时候把 `dirty` 设置为 `true` 呢  我们可反向推理
+先搜索代码中设置为 `ture` 的地方， 我们发现他在 `update` 函数里面
+```js
+update () {
+  /* istanbul ignore else */
+  if (this.lazy) {
+    this.dirty = true
+  } else if (this.sync) {
+    this.run()
+  } else {
+    queueWatcher(this)
+  }
+}
+```
+
+这里又要涉及到另外一个知识点  依赖收集 和 触发更新 的  Dep 大概意思就是当一个值被访问的时候
+会收集用这个值的地方 我们叫做"依赖"，然后当这个值被set新值的时候，会执行收集到的"依赖"
+出发的就是上面的 update 导致  this.dirty = true
+```js
+// Dep 里面的一段代码 执行收集到的"依赖"
+notify () {
+  const subs = this.subs.slice()
+  for (let i = 0, l = subs.length; i < l; i++) {
+    subs[i].update()
+  }
+}
+```
+顺序
+1、 调用计算 watcher 的 update
+2、 调用渲染 watcher 的 update
+
+然后就会触发重新求值
+```js
+if (watcher.dirty) {
+  watcher.evaluate() //
+}
+watcher.evaluate = () => {
+  this.value = this.get()
+  this.dirty = false
+}
+```
+
+大致就是这样，前提可能需要理解一点依赖收集的过程。

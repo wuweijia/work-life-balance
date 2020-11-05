@@ -1,24 +1,33 @@
+<style>
+  .main {
+    width: 720px;
+    margin: auto;
+    text-align: center;
+  }
+</style>
 <template>
-  <div>
-    <i-form :model="formValidate" :rules="ruleValidate">
-      <i-form-item label="用户名" prop="name">
-        <input v-model="formValidate.name" />
-      </i-form-item>
-      <i-form-item label="邮箱" prop="mail">
-        <input v-model="formValidate.mail" />
-      </i-form-item>
-    </i-form>
+  <div class="main">
+    <iForm :model="formValidate" :rules="ruleValidate">
+      <iFormItem label="用户名" prop="name">
+        <iInput v-model="formValidate.name" />
+      </iFormItem>
+      <iFormItem label="邮箱" prop="mail">
+        <iInput v-model="formValidate.mail" />
+      </iFormItem>
+    </iForm>
   </div>
 </template>
 <script>
   import iForm from '../components/form/form.vue';
   import iFormItem from '../components/form/form-item.vue';
+  import iInput from '../components/form/input';
 
   export default {
     name: "iform",
     components: {
       iForm,
-      iFormItem
+      iFormItem,
+      iInput
     },
     data () {
       return {
