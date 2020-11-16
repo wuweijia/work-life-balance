@@ -1,12 +1,53 @@
-function test(a, b) {
-  const arr = [a, b]
-  let abtest = function () {
-    console.log(arr);
-  }
-  abtest.valueOf = function (a, b) {
-    return a + b
+const state = {
+  count: 0
+}
+let activeUpdate
+
+function Dep() {
+  this.deps = []
+  this.depend = function () {
+    if (activeUpdate) {
+      console.log(activeUpdate);
+      this.deps.push(activeUpdate)
+    }
   }
 
-  return abtest
+  this.notify = function () {
+    this.deps.forEach(dep => dep())
+  }
 }
-console.log(test(1,2));
+
+const dep = new Dep()
+
+function Observe(obj) {
+  Object.keys(obj).forEach(function(key){
+    let internalValue = obj[key]
+    Object.defineProperty(obj, key, {
+      get() {
+        dep.depend()
+        return internalValue
+      },
+      set(newValue){
+        dep.notify()
+        internalValue = newValue
+      }
+    })
+  })
+}
+
+Observe(state)
+
+function autoRun(update) {
+  function wrappenUpdate() {
+    activeUpdate = wrappenUpdate
+    update()
+    activeUpdate = null
+  }
+  wrappenUpdate()
+}
+
+autoRun(() => {
+  console.log('duqu', state.count);
+})
+
+state.count = 3
