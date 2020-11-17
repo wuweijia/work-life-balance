@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>依赖跟踪</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+  <script>
+    const state = {
+      count: 0
+    }
+
+    Observe(state)
+
+    function Observe(obj) {
+      Object.keys(obj).forEach(function (key) {
+        let internalValue = obj[key]
+        Object.defineProperty(obj, key, {
+          get() {
+            // dep.depend()
+            return internalValue
+          },
+          set(newValue) {
+            // dep.notify()
+            internalValue = newValue
+          }
+        })
+      })
+    }
+  </script>
+</body>
+
+</html>
