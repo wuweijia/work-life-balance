@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>vue-pulgin</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<body>
+  <div id="app"> {{ foo }}</div>
+  <button @click="add"> ++++++ </button>
+  <script> 
+    const RulesPlugin = {
+      install(Vue) {
+        Vue.mixin({
+          created() {
+            if(this.$options.rules) {
+              // we can do sth
+              Object.keys(this.$options.rules).forEach(key => {
+                const rule = this.$options.rules[key]
+                this.$watch(key, newValue => {
+                  const result = rule.validate(newValue)
+                  if (!result) {
+                    console.log(rule.message)
+                  }
+                })
+              });
+            }
+          },
+        })
+      }
+    }
+
+    Vue.use(RulesPlugin)
+
+    const vm = new Vue({
+      data() {
+        return {
+          foo: 10
+        }
+      },
+      rules: {
+        foo: {
+          validate: vlaue => vlaue > 1,
+          message: 'foo must be greater than one'
+        }
+      },
+
+      methods: {
+        add() {
+          this.foo += 1
+        }
+      },
+    }).$mount('#app')
+  </script>
+</body>
+</html>
