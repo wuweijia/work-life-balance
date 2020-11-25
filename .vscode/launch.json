@@ -5,13 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "pwa-node",
-      "request": "launch",
       "name": "Launch Program",
+      "program": "${workspaceFolder}/test.js",
+      "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}/koa-analysis/koa/examples/middleware/app.js"
-    }
+      "type": "pwa-node"
+    },
   ]
 }
