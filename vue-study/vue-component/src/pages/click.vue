@@ -9,6 +9,7 @@
   <main class="main">
     <section>
       <h3>自定义事件</h3>
+      <IconIc29Search :size='32'>12321</IconIc29Search>
       <Button @on-click="handle"></Button>
     </section>
     <section>
@@ -20,10 +21,12 @@
 
 <script>
 import Button from '../components/button'
+import { IconIc29Search } from 'figmaicontest'
 
 export default {
   components: {
-    Button
+    Button,
+    IconIc29Search
   },
   data() {
     return {

@@ -10,6 +10,7 @@
   "dependencies": {
     "async-validator": "^3.4.0",
     "core-js": "^3.6.4",
+    "figmaicontest": "0.0.4",
     "vue": "^2.6.11",
     "vue-router": "^3.4.3",
     "vuex": "^3.5.1"
