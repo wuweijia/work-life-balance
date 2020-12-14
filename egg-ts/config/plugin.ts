@@ -6,6 +6,10 @@ const plugin: EggPlugin = {
   //   enable: true,
   //   package: 'egg-view-nunjucks',
   // },
+  viewStatic: {
+    enable: true,
+    package: 'egg-view-static',
+  },
 };
 
 export default plugin;
