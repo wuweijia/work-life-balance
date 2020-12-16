@@ -8,9 +8,10 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "23mofang-icons": "^0.1.2",
     "async-validator": "^3.4.0",
     "core-js": "^3.6.4",
-    "figmaicontest": "0.0.4",
+    "figma-icons": "^0.0.20",
     "vue": "^2.6.11",
     "vue-router": "^3.4.3",
     "vuex": "^3.5.1"

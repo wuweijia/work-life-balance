@@ -9,7 +9,7 @@
   <main class="main">
     <section>
       <h3>自定义事件</h3>
-      <IconIc29Search :size='32'>12321</IconIc29Search>
+      <Icon29HomeSolid :size='60' color="#DB7093"/>
       <Button @on-click="handle"></Button>
     </section>
     <section>
@@ -21,12 +21,12 @@
 
 <script>
 import Button from '../components/button'
-import { IconIc29Search } from 'figmaicontest'
+import { Icon29HomeSolid } from 'figma-icons'
 
 export default {
   components: {
     Button,
-    IconIc29Search
+    Icon29HomeSolid,
   },
   data() {
     return {
