@@ -46,7 +46,7 @@ export default {
     },
     onFieldBlur() {
       const rules = this.getRules();
-      console.log(rules, e);
+      console.log(rules);
     },
     onFieldChange(val) {
       const rules = this.getRules();

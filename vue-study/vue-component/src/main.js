@@ -10,6 +10,7 @@ import App from './App.vue'
 import button from './pages/click.vue'
 import communication from './pages/组件通信.vue'
 import checkbox from './pages/checkbox.vue'
+import sidebar from './pages/微信左滑功能.vue'
 
 import Alert from './components/alert/alert'
 import './components/createElement/index';
@@ -28,6 +29,7 @@ const routes = [
   { path: '/click', component: button },
   { path: '/provide', component: communication },
   { path: '/checkbox', component: checkbox },
+  { path: '/sidebar', component: sidebar },
 ]
 
 const router = new VueRouter({

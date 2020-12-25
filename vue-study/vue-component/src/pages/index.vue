@@ -5,6 +5,7 @@
     <router-link class="link" to='form'>表单验证</router-link>
     <router-link class="link" to='checkbox'>checkbox</router-link>
     <router-link class="link" to='/computed-watch'>computed-watch</router-link>
+    <router-link class="link" to='sidebar'>微信左滑功能</router-link>
     <h3>实现全局组件toast</h3>
     <section>
       <button @click="toast">提示我</button>
