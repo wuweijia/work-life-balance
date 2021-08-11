@@ -10,3 +10,8 @@ class Settings():
         self.bullet_width = 3
         self.bullet_height = 15
         self.bullet_speed_factor = 1
+
+        # 外星人
+        self.alien_speed_factor = 1
+        self.fleet_direction = 1
+        self.flest_drop_speed = 10
